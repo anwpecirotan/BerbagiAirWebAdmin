@@ -2,11 +2,11 @@
   "name": "berbagiairwebadmin",
   "version": "0.0.1",
   "description": "Web Admin application for Berbagi Air game",
-  "main": "app.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app",
-    "dev": "nodemon app"
+    "start": "node index",
+    "dev": "nodemon index"
   },
   "author": "",
   "license": "MIT",
