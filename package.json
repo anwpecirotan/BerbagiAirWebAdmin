@@ -1,0 +1,28 @@
+{
+  "name": "berbagiairwebadmin",
+  "version": "0.0.1",
+  "description": "Web Admin application for Berbagi Air game",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app",
+    "dev": "nodemon app"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.20.1",
+    "connect-flash": "^0.1.1",
+    "cookie-parser": "^1.4.6",
+    "ejs": "^3.1.8",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "passport": "^0.6.0",
+    "passport-local": "^1.0.0",
+    "path": "^0.12.7",
+    "playerio-node": "^1.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  }
+}
