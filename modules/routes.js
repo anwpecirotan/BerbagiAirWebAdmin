@@ -122,6 +122,7 @@ router.post("/result", function(req, res){
     GetResults()
     .then(result => {
         if (room < result.responseList.length){
+            console.log(result.responseList[room]);
             res.render("result", { rooms: { roomIndex: room, roomName: roomOptions.name, roomFraming: roomOptions.framing, roomSanksi: roomOptions.sanksi }, result: result.responseList[room] });
         }
         else {
@@ -167,7 +168,19 @@ router.post("/delete", function(req, res){
         result.roomList.splice(index, 1);
         console.log(result.roomList);
         result.save();
-        res.redirect("/");
+        GetResults()
+        .then(roomResult =>{
+            console.log(roomResult.responseList);
+            roomResult.responseList.splice(index, 1);
+            console.log(roomResult.responseList);
+            roomResult.save();
+            res.redirect("/");
+        })
+        .catch(error => {
+            let err = CheckErrorCode(error);
+            console.log(err.message);
+            res.redirect("/");
+        });
     })
     .catch(error => {
         let err = CheckErrorCode(error);

@@ -94,8 +94,34 @@
                     </form>
                     <script>
                     function tableToExcel(){
-                        var table2excel = new Table2Excel();
-                        table2excel.export(document.querySelectorAll("table.table"));
+                        var downloadLink;
+                        var dataType = 'application/vnd.ms-excel';
+                        var tableSelect = document.getElementById("roomData");
+                        var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
+                        
+                        // Specify file name
+                        filename = (document.getElementById("roomName").textContent + "_Result") + '.xls';
+                        
+                        // Create download link element
+                        downloadLink = document.createElement("a");
+                        
+                        document.body.appendChild(downloadLink);
+                        
+                        if (navigator.msSaveOrOpenBlob){
+                            var blob = new Blob(['\ufeff', tableHTML], {
+                                type: dataType
+                            });
+                            navigator.msSaveOrOpenBlob( blob, filename);
+                        } else {
+                            // Create a link to the file
+                            downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
+                        
+                            // Setting the file name
+                            downloadLink.download = filename;
+                            
+                            //triggering the function
+                            downloadLink.click();
+                        }
                     }
                     </script>
                 </div>
@@ -122,7 +148,7 @@
         %>
         <% if (result !== null) {%>
         <% for(let i = 0; i < result.length; i++) {
-            if (result[i].bukaKeran == 1) {
+            if (result[i].perilaku == 1) {
                 jumlah.buka ++;
             } else {
                 jumlah.tutup ++;
@@ -139,20 +165,20 @@
                     <button type="submit" class="btn btn-danger">Delete room</button>
                 </form>
             </div>
-            <div class="col-sm-5 mx-5">
-                <h1 class="d-flex display-6"><strong><%= rooms.roomName %></strong></h1>
+            <div class="col-sm-7 mx-5">
+                <h1 class="d-flex display-6" id="roomName"><strong><%= rooms.roomName %></strong></h1>
                 <dl class="row">
-                    <dt class="col-sm-3">Framing:</dt>
-                    <dd class="col-sm-9" id="framing"><%= framing %></dd>
+                    <dt class="col-sm-3">Framing</dt>
+                    <dd class="col-sm-9" id="framing">: <%= framing %></dd>
                     
-                    <dt class="col-sm-3">Sanksi:</dt>
-                    <dd class="col-sm-9" id="sanksi"><%= sanksi %></dd>
+                    <dt class="col-sm-3">Sanksi</dt>
+                    <dd class="col-sm-9" id="sanksi">: <%= sanksi %></dd>
                     
-                    <dt class="col-sm-3">Membuka Keran:</dt>
-                    <dd class="col-sm-9"><%= jumlah.buka %> response(s)</dd>
+                    <dt class="col-sm-3">Membuka (Non-Cooperatif)</dt>
+                    <dd class="col-sm-9">: <%= jumlah.buka %> response(s)</dd>
                     
-                    <dt class="col-sm-3">Menutup Keran:</dt>
-                    <dd class="col-sm-9"><%= jumlah.tutup %> response(s)</dd>
+                    <dt class="col-sm-3">Menutup (Cooperatif)</dt>
+                    <dd class="col-sm-9">: <%= jumlah.tutup %> response(s)</dd>
                 </dl>
             </div>
             <div class="table-responsive col-sm-9 ms-sm-auto col-lg-auto px-md-5">
@@ -161,19 +187,37 @@
                     <thead class="table-dark">
                         <tr>
                             <th scope="col">Nama</th>
-                            <th scope="col">Buka Keran</th>
+                            <th scope="col">Jenis Kelamin</th>
+                            <th scope="col">Nomor Telpon</th>
+                            <th scope="col">Agama</th>
+                            <th scope="col">Pendidikan</th>
+                            <th scope="col">Suku</th>
+                            <th scope="col">Pekerjaan Ayah</th>
+                            <th scope="col">Pekerjaan Ibu</th>
+                            <th scope="col">Tanggal Lahir</th>
+                            <th scope="col">Tanggal Submit</th>
+                            <th scope="col">Perilaku</th>
                         </tr>
                     </thead>
-                <tbody class="table-group-divider">
-                    <% if (result !== null) { %>
-                    <% for (let i = 0; i < result.length; i++){ %>
-                      <tr>
-                        <td><%= result[i].nama %></td>
-                        <td><%= result[i].bukaKeran == 1 %></td>
-                      </tr>
-                    <% }; %>
-                    <% } %>
-                </tbody>
+                    <tbody class="table-group-divider">
+                        <% if (result !== null) { %>
+                        <% for (let i = 0; i < result.length; i++){ %>
+                        <tr>
+                            <td><%= result[i].nama %></td>
+                            <td><%= result[i].jenisKelamin == 0 ? "Laki-laki" : "Perempuan" %></td>
+                            <td><%= result[i].nomorKontak[0].replace("0","+62") + result[i].nomorKontak.slice(1) %></td>
+                            <td><%= result[i].agama[0].toUpperCase() + result[i].agama.slice(1).toLowerCase() %></td>
+                            <td><%= result[i].pendidikan[0].toUpperCase() + result[i].pendidikan.slice(1).toLowerCase() %></td>
+                            <td><%= result[i].suku[0].toUpperCase() + result[i].suku.slice(1).toLowerCase() %></td>
+                            <td><%= result[i].pekerjaanAyah[0].toUpperCase() + result[i].pekerjaanAyah.slice(1).toLowerCase() %></td>
+                            <td><%= result[i].pekerjaanIbu[0].toUpperCase() + result[i].pekerjaanIbu.slice(1).toLowerCase() %></td>
+                            <td><%= result[i].tanggalLahir %></td>
+                            <td><%= result[i].tanggalSubmit %></td>
+                            <td><%= result[i].perilaku == 1 ? "Non-Cooperatif" : "Cooperatif" %></td>
+                        </tr>
+                        <% }; %>
+                        <% } %>
+                    </tbody>
                 </table>
             </div>
             </div>
