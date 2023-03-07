@@ -4,6 +4,9 @@ const {GetRooms, GetResults, CheckErrorCode} = require("./data");
 const passport = require("passport");
 
 router.use(function(req, res, next){
+    console.log(req.session.passport?.user);
+    console.log("user: ");
+    console.log(req.user);
     res.locals.currentUser = req.user;
     res.locals.info = req.flash("info");
     res.locals.error = req.flash("error");
