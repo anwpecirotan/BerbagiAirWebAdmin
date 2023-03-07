@@ -21,7 +21,7 @@ app.use(cookieParser());
 
 var sess = {
     secret: "water-sharing-o7dkbd6w0swqwslckbo0g",
-    resave: false,
+    resave: true,
     saveUninitialized: false,
     cookie: {
         maxAge: oneDay
