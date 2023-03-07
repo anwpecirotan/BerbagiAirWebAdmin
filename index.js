@@ -20,7 +20,7 @@ app.use(cookieParser());
 app.use(session({
     secret: "water-sharing-o7dkbd6w0swqwslckbo0g",
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,
     
 }));
 
