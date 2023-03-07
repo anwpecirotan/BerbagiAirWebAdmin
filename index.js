@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const passport = require("passport");
 const session = require("express-session");
+const MemoryStore = require("memorystore")(session);
 const flash = require("connect-flash");
 
 const app = express();
@@ -21,7 +22,10 @@ app.use(session({
     secret: "water-sharing-o7dkbd6w0swqwslckbo0g",
     resave: false,
     saveUninitialized: false,
-    
+    cookie: { maxAge: 86400000 },
+    store: new MemoryStore({
+        checkPeriod: 86400000
+    })
 }));
 
 app.use(passport.initialize());
