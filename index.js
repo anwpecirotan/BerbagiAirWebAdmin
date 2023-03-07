@@ -26,6 +26,7 @@ app.use(session({
     store: new MemoryStore({
         checkPeriod: 86400000
     })
+
 }));
 
 app.use(passport.initialize());
