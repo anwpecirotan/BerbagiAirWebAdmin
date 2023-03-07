@@ -10,7 +10,12 @@ router.use(function(req, res, next){
     // res.locals.currentUser = req.user;
     // res.locals.info = req.flash("info");
     // res.locals.error = req.flash("error");
-    next();
+    req.session.save(function(err){
+        if(err) {
+            console.log(err);
+        }
+        next();
+    });
 });
 
 router.get("/", function(req, res){
@@ -19,7 +24,7 @@ router.get("/", function(req, res){
         return;
     }
     
-    res.render("index");
+    res.render("index", { info: req.flash("info"), error: req.flash("error") });
     console.log("Viewing login page");
 });
 
@@ -30,7 +35,7 @@ router.get("/home", function(req, res) {
     }
     GetRooms()
     .then(result => {
-        res.render("roomlist", { user: req.user, rooms: result });
+        res.render("roomlist", { user: req.user, rooms: result, info: req.flash("info"), error: req.flash("error") });
         console.log("Viewing home page with room list(s)");
     })
     .catch(error => {
@@ -38,7 +43,7 @@ router.get("/home", function(req, res) {
             res.redirect("/");
         }
         else {
-            res.render("roomlist", { user: req.user, rooms: null });
+            res.render("roomlist", { user: req.user, rooms: null, info: req.flash("info"), error: req.flash("error") });
         }
     });
 });
@@ -49,7 +54,7 @@ router.get("/signup", function(req, res){
         return;
     }
 
-    res.render("signup");
+    res.render("signup", { info: req.flash("info"), error: req.flash("error") });
     console.log("Viewing signup page");
 });
 
@@ -69,7 +74,7 @@ router.get("/logout", function(req, res, next){
 
 router.get("/createroom", function(req, res){
     if (req.user != null || req.user != undefined){
-        res.render("createroom", { user: req.user });
+        res.render("createroom", { user: req.user , info: req.flash("info"), error: req.flash("error") });
         console.log("Viewing createroom page");
         return;
     }
@@ -128,11 +133,11 @@ router.post("/result", function(req, res){
     .then(result => {
         if (room < result.responseList.length){
             //console.log(result.responseList[room]);
-            res.render("result", {  user: req.user, rooms: { roomIndex: room, roomName: roomOptions.name, roomFraming: roomOptions.framing, roomSanksi: roomOptions.sanksi }, result: result.responseList[room] });
+            res.render("result", {  user: req.user, rooms: { roomIndex: room, roomName: roomOptions.name, roomFraming: roomOptions.framing, roomSanksi: roomOptions.sanksi }, result: result.responseList[room], info: req.flash("info"), error: req.flash("error") });
         }
         else {
             console.log("[GetResults]: Index out of bounds");
-            res.render("result", {  user: req.user, rooms: { roomIndex: room, roomName: roomOptions.name, roomFraming: roomOptions.framing, roomSanksi: roomOptions.sanksi }, result: null });
+            res.render("result", {  user: req.user, rooms: { roomIndex: room, roomName: roomOptions.name, roomFraming: roomOptions.framing, roomSanksi: roomOptions.sanksi }, result: null, info: req.flash("info"), error: req.flash("error") });
         }
         console.log("Viewing result page");
     })
