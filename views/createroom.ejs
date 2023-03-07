@@ -70,15 +70,15 @@
           if (error !== null || error !== undefined) {
             console.log(error);
           }
-          var userName = currentUser.connectUserId.slice(6);
+          var userName = user.connectUserId.slice(6);
           var userNames = [];
           var isSuper = false;
           if (userName.match("BerbagiAir2023")) {
-            userName = currentUser.connectUserId.replace("simple","[Super-Admin] ");
+            userName = user.connectUserId.replace("simple","[Super-Admin] ");
             userNames = userName.split(" ");
             isSuper = true;
           } else {
-            userName = currentUser.connectUserId.replace("simple","[Sub-Admin] ");
+            userName = user.connectUserId.replace("simple","[Sub-Admin] ");
             userNames = userName.split(" ");
           }
           %>

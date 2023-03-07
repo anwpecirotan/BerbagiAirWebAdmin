@@ -68,15 +68,15 @@
             <div class="container">
                 <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
                 <% 
-                var userName = currentUser.connectUserId.slice(6);
+                var userName = user.connectUserId.slice(6);
                 var userNames = [];
                 var isSuper = false;
                 if (userName.match("BerbagiAir2023")) {
-                    userName = currentUser.connectUserId.replace("simple","[Super-Admin] ");
+                    userName = user.connectUserId.replace("simple","[Super-Admin] ");
                     userNames = userName.split(" ");
                     isSuper = true;
                 } else {
-                    userName = currentUser.connectUserId.replace("simple","[Sub-Admin] ");
+                    userName = user.connectUserId.replace("simple","[Sub-Admin] ");
                     userNames = userName.split(" ");
                 }
                 %>
@@ -155,7 +155,7 @@
             }
         } %>
         <% } %>
-        <% if (currentUser == null) {%>
+        <% if (user == null) {%>
             <h1 class="d-flex justify-content-center py-5">Please login!</h1>
         <%} else {%>
             <div class="table-center">
