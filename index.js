@@ -21,7 +21,6 @@ app.use(cookieParser());
 app.use(session({
     secret: "water-sharing-o7dkbd6w0swqwslckbo0g",
     resave: false,
-    saveUninitialized: false,
     cookie: { maxAge: 86400000 },
     store: new MemoryStore({
         checkPeriod: 86400000
