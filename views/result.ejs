@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Berbagi Air Admin Page - Result</title>
+        <link href="/stylesheets/bootstrap.min.css" rel="stylesheet">
+        <style>
+            .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            user-select: none;
+            }
+
+            @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+            }
+
+            .b-example-divider {
+            height: 3rem;
+            background-color: rgba(0, 0, 0, .1);
+            border: solid rgba(0, 0, 0, .15);
+            border-width: 1px 0;
+            box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
+            }
+
+            .b-example-vr {
+            flex-shrink: 0;
+            width: 1.5rem;
+            height: 100vh;
+            }
+
+            .bi {
+            vertical-align: -.125em;
+            fill: currentColor;
+            }
+
+            .nav-scroller {
+            position: relative;
+            z-index: 2;
+            height: 2.75rem;
+            overflow-y: hidden;
+            }
+
+            .nav-scroller .nav {
+            display: flex;
+            flex-wrap: nowrap;
+            padding-bottom: 1rem;
+            margin-top: -1px;
+            overflow-x: auto;
+            text-align: center;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+            }
+        </style>
+        <!-- Custom styles for this template -->
+        <link href="/stylesheets/headers.css" rel="stylesheet">
+        <link href="/stylesheets/dashboard.css" rel="stylesheet">
+        <script src="/tabletoexcel.js"></script>
+    </head>
+    <body>
+        <main>
+            <div class="container">
+                <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
+                <% 
+                var userName = currentUser.connectUserId.slice(6);
+                var userNames = [];
+                var isSuper = false;
+                if (userName.match("BerbagiAir2023")) {
+                    userName = currentUser.connectUserId.replace("simple","[Super-Admin] ");
+                    userNames = userName.split(" ");
+                    isSuper = true;
+                } else {
+                    userName = currentUser.connectUserId.replace("simple","[Sub-Admin] ");
+                    userNames = userName.split(" ");
+                }
+                %>
+                <ul class="nav nav-pills">
+                    <li class="nav-item"><a href="/home" class="nav-link active" aria-current="page">Room List</a></li>
+                    <% if (isSuper) { %>
+                    <li class="nav-item"><a href="/signup" class="nav-link">Create a new Sub Admin Account</a></li>
+                    <% } %>
+                    <li class="nav-item"><a href="/logout" class="nav-link">Logout from <strong><%= userNames[0] %></strong> <%= userNames[1] %></a></li>
+                </ul>
+                <div class="nav justify-content-end">
+                    <button class="btn btn-md btn-outline-primary" onclick="tableToExcel()">Export to Excel</button>
+                    <form method="get" action="/home">
+                        <button class="btn btn-md btn-outline-primary" type="submit">Back to List</button>
+                    </form>
+                    <script>
+                    function tableToExcel(){
+                        var downloadLink;
+                        var dataType = 'application/vnd.ms-excel';
+                        var tableSelect = document.getElementById("roomData");
+                        var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
+                        
+                        // Specify file name
+                        filename = (document.getElementById("roomName").textContent + "_Result") + '.xls';
+                        
+                        // Create download link element
+                        downloadLink = document.createElement("a");
+                        
+                        document.body.appendChild(downloadLink);
+                        
+                        if (navigator.msSaveOrOpenBlob){
+                            var blob = new Blob(['\ufeff', tableHTML], {
+                                type: dataType
+                            });
+                            navigator.msSaveOrOpenBlob( blob, filename);
+                        } else {
+                            // Create a link to the file
+                            downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
+                        
+                            // Setting the file name
+                            downloadLink.download = filename;
+                            
+                            //triggering the function
+                            downloadLink.click();
+                        }
+                    }
+                    </script>
+                </div>
+            </header>
+        </div>
+        <% var jumlah = {
+            buka: 0,
+            tutup: 0
+        } %>
+        <%
+        var framing = "Tanpa Framing"
+        var sanksi = "Tanpa Sanksi"
+
+        if (rooms.roomFraming == 1) {
+            framing = "Framing Untung";
+        }
+        else if (rooms.roomFraming == 2){
+            framing = "Framing Rugi";
+        }
+
+        if (rooms.roomSanksi == 1){
+            sanksi = "Dengan Sanksi";
+        }
+        %>
+        <% if (result !== null) {%>
+        <% for(let i = 0; i < result.length; i++) {
+            if (result[i].perilaku == 1) {
+                jumlah.buka ++;
+            } else {
+                jumlah.tutup ++;
+            }
+        } %>
+        <% } %>
+        <% if (currentUser == null) {%>
+            <h1 class="d-flex justify-content-center py-5">Please login!</h1>
+        <%} else {%>
+            <div class="table-center">
+            <div class="float-sm-end pe-5">
+                <form method="post" action="/delete">
+                    <input type="hidden" name="roomIdx" value="<%= rooms.roomIndex %>">
+                    <button type="submit" class="btn btn-danger">Delete room</button>
+                </form>
+            </div>
+            <div class="col-sm-7 mx-5">
+                <h1 class="d-flex display-6" id="roomName"><strong><%= rooms.roomName %></strong></h1>
+                <dl class="row">
+                    <dt class="col-sm-3">Framing</dt>
+                    <dd class="col-sm-9" id="framing">: <%= framing %></dd>
+                    
+                    <dt class="col-sm-3">Sanksi</dt>
+                    <dd class="col-sm-9" id="sanksi">: <%= sanksi %></dd>
+                    
+                    <dt class="col-sm-3">Membuka (Non-Cooperatif)</dt>
+                    <dd class="col-sm-9">: <%= jumlah.buka %> response(s)</dd>
+                    
+                    <dt class="col-sm-3">Menutup (Cooperatif)</dt>
+                    <dd class="col-sm-9">: <%= jumlah.tutup %> response(s)</dd>
+                </dl>
+            </div>
+            <div class="table-responsive col-sm-9 ms-sm-auto col-lg-auto px-md-5">
+                <table class="table table-striped table-hover table-md caption-top" id="roomData">
+                    <caption>List of responses</caption>
+                    <thead class="table-dark">
+                        <tr>
+                            <th scope="col">Nama</th>
+                            <th scope="col">Jenis Kelamin</th>
+                            <th scope="col">Nomor Telpon</th>
+                            <th scope="col">Agama</th>
+                            <th scope="col">Pendidikan</th>
+                            <th scope="col">Suku</th>
+                            <th scope="col">Pekerjaan Ayah</th>
+                            <th scope="col">Pekerjaan Ibu</th>
+                            <th scope="col">Tanggal Lahir</th>
+                            <th scope="col">Tanggal Submit</th>
+                            <th scope="col">Perilaku</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-group-divider">
+                        <% if (result !== null) { %>
+                        <% for (let i = 0; i < result.length; i++){ %>
+                        <tr>
+                            <td><%= result[i].nama %></td>
+                            <td><%= result[i].jenisKelamin == 0 ? "Laki-laki" : "Perempuan" %></td>
+                            <td><%= result[i].nomorKontak[0].replace("0","+62") + result[i].nomorKontak.slice(1) %></td>
+                            <td><%= result[i].agama[0].toUpperCase() + result[i].agama.slice(1).toLowerCase() %></td>
+                            <td><%= result[i].pendidikan[0].toUpperCase() + result[i].pendidikan.slice(1).toLowerCase() %></td>
+                            <td><%= result[i].suku[0].toUpperCase() + result[i].suku.slice(1).toLowerCase() %></td>
+                            <td><%= result[i].pekerjaanAyah[0].toUpperCase() + result[i].pekerjaanAyah.slice(1).toLowerCase() %></td>
+                            <td><%= result[i].pekerjaanIbu[0].toUpperCase() + result[i].pekerjaanIbu.slice(1).toLowerCase() %></td>
+                            <td><%= result[i].tanggalLahir %></td>
+                            <td><%= result[i].tanggalSubmit %></td>
+                            <td><%= result[i].perilaku == 1 ? "Non-Cooperatif" : "Cooperatif" %></td>
+                        </tr>
+                        <% }; %>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+            </div>
+        <%}%>
+        </main>
+    </body>
+</html>
