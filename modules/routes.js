@@ -4,7 +4,9 @@ const {GetRooms, GetResults, CheckErrorCode} = require("./data");
 const passport = require("passport");
 
 router.use(function(req, res, next){
-    console.log(req.user);
+    // console.log(req.session.passport?.user);
+    // console.log("user: ");
+    // console.log(req.user);
     res.locals.currentUser = req.user;
     res.locals.info = req.flash("info");
     res.locals.error = req.flash("error");
@@ -12,7 +14,7 @@ router.use(function(req, res, next){
 });
 
 router.get("/", function(req, res){
-    if (res.locals.currentUser != null || res.locals.currentUser != undefined){
+    if (req.user != null || req.user != undefined){
         res.redirect("/home");
         return;
     }
@@ -22,13 +24,13 @@ router.get("/", function(req, res){
 });
 
 router.get("/home", function(req, res) {
-    if (res.locals.currentUser == null || res.locals.currentUser == undefined){
+    if (req.user == null || req.user == undefined){
         res.redirect("/");
         return;
     }
     GetRooms()
     .then(result => {
-        res.render("roomlist", { rooms: result });
+        res.render("roomlist", { user: req.user, rooms: result });
         console.log("Viewing home page with room list(s)");
     })
     .catch(error => {
@@ -36,13 +38,13 @@ router.get("/home", function(req, res) {
             res.redirect("/");
         }
         else {
-            res.render("roomlist", { rooms: null });
+            res.render("roomlist", { user: req.user, rooms: null });
         }
     });
 });
 
 router.get("/signup", function(req, res){
-    if (res.locals.currentUser == null || res.locals.currentUser == undefined){
+    if (req.user == null || req.user == undefined){
         res.redirect("/");
         return;
     }
@@ -52,20 +54,22 @@ router.get("/signup", function(req, res){
 });
 
 router.get("/logout", function(req, res, next){
-    if (res.locals.currentUser == null || res.locals.currentUser == undefined){
+    if (req.user == null || req.user == undefined){
         res.redirect("/");
         return;
     }
 
     req.logout(function(err){
         if(err) { return next(err); }
-        res.redirect("/");
+        req.logOut(err => {
+            req.session.destroy(res.redirect("/"));
+        });
     });
 });
 
 router.get("/createroom", function(req, res){
-    if (res.locals.currentUser != null || res.locals.currentUser != undefined){
-        res.render("createroom");
+    if (req.user != null || req.user != undefined){
+        res.render("createroom", { user: req.user });
         console.log("Viewing createroom page");
         return;
     }
@@ -80,7 +84,7 @@ router.post("/login", passport.authenticate("login", {
 }));
 
 router.post("/signup", function(req, res, next){
-    if (res.locals.currentUser == null || res.locals.currentUser == undefined){
+    if (req.user == null || req.user == undefined){
         res.redirect("/");
         return;
     }
@@ -113,7 +117,7 @@ router.post("/signup", function(req, res, next){
 }));
 
 router.post("/result", function(req, res){
-    if (res.locals.currentUser == null || res.locals.currentUser == undefined){
+    if (req.user == null || req.user == undefined){
         res.redirect("/");
         return;
     }
@@ -123,12 +127,12 @@ router.post("/result", function(req, res){
     GetResults()
     .then(result => {
         if (room < result.responseList.length){
-            console.log(result.responseList[room]);
-            res.render("result", { rooms: { roomIndex: room, roomName: roomOptions.name, roomFraming: roomOptions.framing, roomSanksi: roomOptions.sanksi }, result: result.responseList[room] });
+            //console.log(result.responseList[room]);
+            res.render("result", {  user: req.user, rooms: { roomIndex: room, roomName: roomOptions.name, roomFraming: roomOptions.framing, roomSanksi: roomOptions.sanksi }, result: result.responseList[room] });
         }
         else {
             console.log("[GetResults]: Index out of bounds");
-            res.render("result", { rooms: { roomIndex: room, roomName: roomOptions.name, roomFraming: roomOptions.framing, roomSanksi: roomOptions.sanksi }, result: null });
+            res.render("result", {  user: req.user, rooms: { roomIndex: room, roomName: roomOptions.name, roomFraming: roomOptions.framing, roomSanksi: roomOptions.sanksi }, result: null });
         }
         console.log("Viewing result page");
     })
@@ -139,13 +143,13 @@ router.post("/result", function(req, res){
 });
 
 router.post("/createroom", function(req, res){
-    if (res.locals.currentUser == null || res.locals.currentUser == undefined){
+    if (req.user == null || req.user == undefined){
         res.redirect("/");
         return;
     }
 
     var roomOptions = { name: req.body.viewroomName, framing: parseInt(req.body.viewroomFraming), sanksi: parseInt(req.body.viewroomSanksi) };
-    console.log(roomOptions);
+    // console.log(roomOptions);
     GetRooms()
     .then(result => {
         result.roomList[result.roomList.length] = { roomName: roomOptions.name, framing: roomOptions.framing, sanksi: roomOptions.sanksi };

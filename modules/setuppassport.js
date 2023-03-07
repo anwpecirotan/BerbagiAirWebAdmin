@@ -5,12 +5,12 @@ var LocalStrategy = require("passport-local").Strategy;
 
 module.exports = function(){
     passport.serializeUser(function(user, done) {
-        console.log("[passport.serializeUser]: " + user.connectUserId);
+        // console.log("[passport.serializeUser]: " + user.connectUserId);
         done(null, user);
     });
     
     passport.deserializeUser(function(user, done){
-        console.log("[passport.deserializeUser]: " + user.connectUserId);
+        // console.log("[passport.deserializeUser]: " + user.connectUserId);
         done(null, user);
         // ConnectToPlayerIO(user.connectUserId, user.password)
         // .then(result => {

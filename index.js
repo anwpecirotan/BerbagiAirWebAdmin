@@ -5,27 +5,35 @@ const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const passport = require("passport");
 const session = require("express-session");
-const MemoryStore = require("memorystore")(session);
 const flash = require("connect-flash");
+const oneDay = 24 * 60 * 60 * 1000;
 
 const app = express();
 var setUpPassport = require("./modules/setuppassport");
 setUpPassport();
-console.log(process.env);
+
 app.set("port", process.env.PORT || 3000);
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(cookieParser());
-app.use(session({
+
+var sess = {
     secret: "water-sharing-o7dkbd6w0swqwslckbo0g",
     resave: false,
-    cookie: { maxAge: 86400000 },
-    store: new MemoryStore({
-        checkPeriod: 86400000
-    })
-}));
+    saveUninitialized: false,
+    cookie: {
+        maxAge: oneDay
+    }
+}
+
+if (process.env.VERCEL_ENV === "production"){
+    app.set("trust proxy", 1);
+    sess.cookie.secure = true;
+}
+
+app.use(session(sess));
 
 app.use(passport.initialize());
 app.use(passport.session());
